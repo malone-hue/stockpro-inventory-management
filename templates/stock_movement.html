@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Management | StockPro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .movement-container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 25px;
+        }
+
+    .movement-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .movement-card h2 {
+        margin-bottom: 20px;
+    }
+
+    .movement-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .movement-form .full-width {
+        grid-column: 1 / -1;
+    }
+
+    .movement-form label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .movement-form input,
+    .movement-form select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        box-sizing: border-box;
+        background: white;
+    }
+
+    .movement-form button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+        font-weight: 600;
+        color: white;
+        background: #2563eb;
+    }
+
+    .movement-form button:hover {
+        background: #1d4ed8;
+    }
+
+    .movement-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .movement-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .movement-table th,
+    .movement-table td {
+        text-align: left;
+        padding: 13px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    .movement-table th {
+        background: #f8fafc;
+    }
+
+    .movement-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .movement-in {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .movement-out {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .movement-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .movement-links a {
+        text-decoration: none;
+        color: #2563eb;
+        font-weight: 600;
+    }
+
+    .movement-flash {
+        padding: 12px 15px;
+        border-radius: 7px;
+        margin-bottom: 15px;
+    }
+
+    .movement-flash.success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .movement-flash.error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .no-movements {
+        padding: 25px;
+        text-align: center;
+        color: #6b7280;
+    }
+
+    @media (max-width: 600px) {
+        .movement-container {
+            padding: 12px;
+        }
+
+        .movement-form {
+            grid-template-columns: 1fr;
+        }
+
+        .movement-form .full-width {
+            grid-column: auto;
+        }
+    }
+</style>
+```
+
+</head>
+<body>
+
+```
+<main class="movement-container">
+
+    <div class="movement-links">
+        <a href="{{ url_for('home') }}">← Back to Dashboard</a>
+        <a href="{{ url_for('stock_history') }}">View Full Stock History</a>
+    </div>
+
+    <h1>Stock In / Stock Out</h1>
+    <p>Record incoming stock and stock leaving your inventory.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="movement-flash {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <section class="movement-card">
+        <h2>Record Stock Movement</h2>
+
+        {% if products %}
+        <form method="POST"
+      action="{{ url_for('stock_movement') }}"
+      class="movement-form">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div>
+        <label for="product_id">Select Product</label>
+
+        <select id="product_id" name="product_id" required>
+            <option value="">Choose a product</option>
+
+            {% for product in products %}
+                <option value="{{ product.id }}">
+                    {{ product.name }} — Current stock: {{ product.quantity }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+                <div>
+                    <label for="movement_type">Movement Type</label>
+                    <select id="movement_type" name="movement_type" required>
+                        <option value="">Choose movement type</option>
+                        <option value="IN">Stock In — Add stock</option>
+                        <option value="OUT">Stock Out — Remove stock</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="quantity">Quantity</label>
+                    <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                        min="1"
+                        step="1"
+                        placeholder="Enter quantity"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="reason">Reason</label>
+                    <input
+                        type="text"
+                        id="reason"
+                        name="reason"
+                        maxlength="255"
+                        placeholder="e.g. Supplier delivery or sale"
+                    >
+                </div>
+
+                <div class="full-width">
+                    <button type="submit">Save Stock Movement</button>
+                </div>
+
+            </form>
+        {% else %}
+            <p>No products found. Add a product before recording stock movements.</p>
+            <a href="{{ url_for('add_product') }}">Add Product</a>
+        {% endif %}
+    </section>
+
+    <section class="movement-card">
+        <h2>Recent Stock Movements</h2>
+
+        <div class="movement-table-wrapper">
+            <table class="movement-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Product</th>
+                        <th>Movement</th>
+                        <th>Quantity</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for movement in movements %}
+                        <tr>
+                            <td>{{ movement.created_at }}</td>
+                            <td>{{ movement.product_name }}</td>
+                            <td>
+                                {% if movement.movement_type == 'IN' %}
+                                    <span class="movement-badge movement-in">STOCK IN</span>
+                                {% else %}
+                                    <span class="movement-badge movement-out">STOCK OUT</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ movement.quantity }}</td>
+                            <td>{{ movement.reason or 'Not specified' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="no-movements">
+                                No stock movements recorded yet.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+```
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Administrator | Inventory Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="auth-container">
+        <section class="auth-card">
+            <h1>Inventory Management System</h1>
+            <h2>Create Administrator Account</h2>
+            <p>This page is available only before the first account is created.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('auth.register') }}">
+                <label for="full_name">Full name</label>
+                <input
+                    type="text"
+                    id="full_name"
+                    name="full_name"
+                    required
+                    maxlength="100"
+                    autocomplete="name"
+                >
+
+                <label for="email">Email address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    maxlength="150"
+                    autocomplete="email"
+                >
+
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    minlength="10"
+                    autocomplete="new-password"
+                >
+
+                <label for="confirm_password">Confirm password</label>
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    required
+                    minlength="10"
+                    autocomplete="new-password"
+                >
+
+                <button type="submit">Create Administrator</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

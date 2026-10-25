@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product | StockPro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+```
+<main class="main-content" style="margin-left: 0; max-width: 900px; margin-right: auto; margin-left: auto;">
+    <header class="topbar">
+        <div>
+            <h1>Add New Product</h1>
+            <p>Enter the product details below.</p>
+        </div>
+        <a href="/" class="button secondary">Back to Dashboard</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="notice {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <section class="products-section">
+        <form method="POST" action="{{ url_for('add_product') }}">
+        
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="name">Product Name</label>
+            <input id="name" name="name" type="text" maxlength="150" required>
+
+            <label for="category">Category</label>
+            <input id="category" name="category" type="text" maxlength="100" required>
+
+            <label for="cost_price">Cost Price</label>
+            <input id="cost_price" name="cost_price" type="number" min="0" step="0.01" value="0" required>
+
+            <label for="selling_price">Selling Price</label>
+            <input id="selling_price" name="selling_price" type="number" min="0" step="0.01" value="0" required>
+
+            <label for="quantity">Quantity</label>
+            <input id="quantity" name="quantity" type="number" min="0" step="1" value="0" required>
+
+            <label for="reorder_level">Low Stock Alert Level</label>
+            <input id="reorder_level" name="reorder_level" type="number" min="0" step="1" value="5" required>
+
+            <button class="button" type="submit">Save Product</button>
+        </form>
+    </section>
+</main>
+```
+
+</body>
+</html>

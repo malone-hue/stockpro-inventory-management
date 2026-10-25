@@ -1,0 +1,224 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Management | StockPro</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>StockPro</h2>
+
+        <nav>
+            <span>
+                Welcome, {{ session.get('user_name') }}
+                ({{ session.get('user_role') }})
+            </span>
+
+            <a href="{{ url_for('home') }}">Dashboard</a>
+            <a href="{{ url_for('home') }}#products">Products</a>
+
+            {% if session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('add_product') }}">Add Product</a>
+            {% endif %}
+
+            <a href="{{ url_for('home') }}#stock-summary">Stock Summary</a>
+            <a href="{{ url_for('stock_movement') }}">Stock In / Stock Out</a>
+            <a href="{{ url_for('stock_history') }}">Stock History</a>
+            <a href="{{ url_for('record_sale') }}" class="active">Sales</a>
+
+            {% if session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('reports') }}">Reports & Analytics</a>
+                <a href="{{ url_for('auth.users') }}">User Management</a>
+            {% endif %}
+
+            <div class="user-info">
+                {% if session.get('user_id') %}
+                    <form action="{{ url_for('auth.logout') }}"
+                          method="POST"
+                          style="display: inline;">
+                        <button type="submit">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <p class="sidebar-footer">Inventory Management</p>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <header>
+            <h1>Sales Management</h1>
+            <p>Record sales, track revenue, and monitor gross profit.</p>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Record Sale -->
+        <section class="card">
+            <h2>Record a Sale</h2>
+
+            <form method="POST" action="{{ url_for('record_sale') }}">
+
+
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+
+
+                <div class="form-group">
+                    <label for="product_id">Select Product</label>
+
+                    <select name="product_id" id="product_id" required>
+                        <option value="">-- Choose a product --</option>
+
+                        {% for product in products %}
+                            <option
+                                value="{{ product.id }}"
+                                data-price="{{ product.selling_price }}"
+                                data-stock="{{ product.quantity }}">
+                                {{ product.name }}
+                                — Stock: {{ product.quantity }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity Sold</label>
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        id="quantity"
+                        min="1"
+                        step="1"
+                        required
+                    >
+
+                    <small id="stock-message"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Unit Selling Price</label>
+                    <input type="text" id="unit-price" value="0.00" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Estimated Total</label>
+                    <input type="text" id="total-price" value="0.00" readonly>
+                </div>
+
+                <button type="submit" id="submit-sale">
+                    Record Sale
+                </button>
+
+            </form>
+        </section>
+
+        <!-- Sales History -->
+        <section class="card">
+            <h2>Recent Sales</h2>
+
+            {% if sales %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sale ID</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total Amount</th>
+                                <th>Gross Profit</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for sale in sales %}
+                                <tr>
+                                    <td>#{{ sale.id }}</td>
+                                    <td>{{ sale.product_name }}</td>
+                                    <td>{{ sale.quantity }}</td>
+                                    <td>{{ "%.2f"|format(sale.selling_price) }}</td>
+                                    <td>{{ "%.2f"|format(sale.total_amount) }}</td>
+                                    <td>{{ "%.2f"|format(sale.gross_profit) }}</td>
+                                    <td>{{ sale.created_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No sales recorded yet.</p>
+            {% endif %}
+        </section>
+
+    </main>
+
+    <script>
+        const productSelect = document.getElementById("product_id");
+        const quantityInput = document.getElementById("quantity");
+        const unitPriceInput = document.getElementById("unit-price");
+        const totalPriceInput = document.getElementById("total-price");
+        const stockMessage = document.getElementById("stock-message");
+        const submitButton = document.getElementById("submit-sale");
+
+        function updateSalePreview() {
+            const selectedOption =
+                productSelect.options[productSelect.selectedIndex];
+
+            const price = Number(selectedOption.dataset.price || 0);
+            const stock = Number(selectedOption.dataset.stock || 0);
+            const quantity = Number(quantityInput.value || 0);
+
+            unitPriceInput.value = price.toFixed(2);
+            totalPriceInput.value = (price * quantity).toFixed(2);
+
+            quantityInput.max = stock > 0 ? stock : "";
+
+            if (!selectedOption.value) {
+                stockMessage.textContent = "";
+                submitButton.disabled = false;
+                return;
+            }
+
+            if (quantity > stock) {
+                stockMessage.textContent =
+                    `Only ${stock} units are available.`;
+                submitButton.disabled = true;
+            } else {
+                stockMessage.textContent =
+                    `${stock} units available.`;
+                submitButton.disabled = false;
+            }
+        }
+
+        productSelect.addEventListener("change", updateSalePreview);
+        quantityInput.addEventListener("input", updateSalePreview);
+
+        updateSalePreview();
+    </script>
+
+</body>
+</html>
+

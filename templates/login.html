@@ -1,0 +1,201 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | StockPro</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="login-page">
+
+    <main class="login-layout">
+
+        <!-- Left branding panel -->
+        <section class="login-brand-panel">
+
+            <div class="brand-content">
+
+                <a href="{{ url_for('auth.login') }}" class="brand-logo">
+                    <span class="brand-icon">S</span>
+                    <span>Stock<span class="brand-highlight">Pro</span></span>
+                </a>
+
+                <div class="brand-message">
+                    <span class="eyebrow">INVENTORY MANAGEMENT MADE SIMPLE</span>
+
+                    <h1>Take control of your inventory.</h1>
+
+                    <p>
+                        Manage products, track stock movements, and monitor
+                        your business from one simple dashboard.
+                    </p>
+                </div>
+
+                <div class="feature-list">
+
+                    <div class="login-feature">
+                        <span class="feature-icon">▦</span>
+                        <div>
+                            <h3>Product Management</h3>
+                            <p>Keep your products organized.</p>
+                        </div>
+                    </div>
+
+                    <div class="login-feature">
+                        <span class="feature-icon">↗</span>
+                        <div>
+                            <h3>Stock Tracking</h3>
+                            <p>Know what comes in and goes out.</p>
+                        </div>
+                    </div>
+
+                    <div class="login-feature">
+                        <span class="feature-icon">✓</span>
+                        <div>
+                            <h3>Secure Access</h3>
+                            <p>Manage accounts and permissions.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="brand-footer">
+                <span>StockPro Inventory System</span>
+                <span>Organize. Track. Grow.</span>
+            </div>
+
+        </section>
+
+
+        <!-- Right login panel -->
+        <section class="login-form-panel">
+
+            <div class="login-card">
+
+                <div class="mobile-brand">
+                    <span class="brand-icon">S</span>
+                    <span>Stock<span class="brand-highlight">Pro</span></span>
+                </div>
+
+                <div class="login-heading">
+                    <span class="welcome-label">WELCOME BACK</span>
+
+                    <h2>Sign in to your account</h2>
+
+                    <p>Enter your details to continue to StockPro.</p>
+                </div>
+
+
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="login-alerts">
+                            {% for category, message in messages %}
+                                <div class="login-alert alert-{{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+
+                <!-- Login form -->
+                <form method="POST"
+                      action="{{ url_for('auth.login') }}"
+                      class="login-form">
+
+                    <!-- Required for Flask-WTF CSRF protection -->
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <div class="input-group">
+                        <label for="email">Email address</label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required
+                            autofocus
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <div class="password-label-row">
+                            <label for="password">Password</label>
+                        </div>
+
+                        <div class="password-input-wrapper">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="togglePassword"
+                                aria-label="Show password"
+                            >
+                                Show
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        <span>Sign In</span>
+                        <span class="button-arrow">→</span>
+                    </button>
+
+                </form>
+
+                <div class="login-security">
+                    <span class="security-icon">▣</span>
+                    <span>Your account is protected by secure login.</span>
+                </div>
+
+                <p class="login-copyright">
+                    &copy; {{ now().year if false else 2026 }} StockPro.
+                    All rights reserved.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("password");
+
+        togglePassword.addEventListener("click", function () {
+            const isPassword = passwordInput.type === "password";
+
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePassword.textContent = isPassword ? "Hide" : "Show";
+            togglePassword.setAttribute(
+                "aria-label",
+                isPassword ? "Hide password" : "Show password"
+            );
+        });
+    </script>
+
+</body>
+</html>
+```

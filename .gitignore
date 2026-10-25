@@ -1,0 +1,34 @@
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Flask
+instance/
+.webassets-cache/
+
+# IDE settings
+.vscode/
+
+# Local databases and backups
+*.db
+*.sqlite
+*.sqlite3
+*.bak
+
+# Python testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
