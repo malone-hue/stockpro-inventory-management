@@ -42,4 +42,5 @@ htmlcov/
 Thumbs.db
 
 # Database certificates
-certs/
+certs/*
+!certs/tidb-ca.pem
