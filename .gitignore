@@ -22,6 +22,15 @@ instance/
 *.sqlite
 *.sqlite3
 *.bak
+# Local databases and backups
+
+*.db
+*.sqlite
+*.sqlite3
+*.bak
+*.sql
+inventory_backup.sql
+
 
 # Python testing and coverage
 .pytest_cache/
@@ -32,3 +41,5 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
+# Database certificates
+certs/

@@ -17,6 +17,7 @@ from flask_wtf.csrf import CSRFProtect
 from io import BytesIO
 from openpyxl import Workbook
 from flask import send_file
+from pathlib import Path
 
 load_dotenv()
 
@@ -30,11 +31,25 @@ app.register_blueprint(auth)
 
 
 def get_db_connection():
+    ca_path = Path(
+        os.getenv("DB_SSL_CA", "certs/tidb-ca.pem")
+    ).resolve()
+
+    if not ca_path.is_file():
+        raise FileNotFoundError(
+            f"TiDB CA certificate not found: {ca_path}"
+        )
+
     return mysql.connector.connect(
         host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT", "4000")),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME")
+        database=os.getenv("DB_NAME"),
+        ssl_ca=str(ca_path),
+        ssl_verify_cert=True,
+        ssl_verify_identity=True,
+        connection_timeout=15
     )
 
 
